@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <form action="{{ url_for('main.select_wallet') }}" method="POST" id="walletForm">
+            <select id="walletSelect" name="wallet_id" class="form-select" onchange="this.form.submit()">
+                <option value="">Выберите кошелек</option>
+                {% for wallet in wallets %}
+                <option value="{{ wallet.id }}" {% if wallet.id == selected_wallet_id %}selected{% endif %}>
+                    {{ wallet.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+<div id="statistics" class="row" {% if not selected_wallet_id %}style="display: none;"{% endif %}>
+    <!-- Общая статистика -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Общий доход</h5>
+                <h3 class="card-text" id="totalIncome">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Общие расходы</h5>
+                <h3 class="card-text" id="totalExpenses">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Общий остаток</h5>
+                <h3 class="card-text" id="totalBalance">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика по зарплате -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Доход (Зарплата)</h5>
+                <h3 class="card-text" id="salaryIncome">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Расход (Зарплата)</h5>
+                <h3 class="card-text" id="salaryExpenses">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Остаток (Зарплата)</h5>
+                <h3 class="card-text" id="salaryBalance">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика по авансу -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Доход (Аванс)</h5>
+                <h3 class="card-text" id="advanceIncome">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Расход (Аванс)</h5>
+                <h3 class="card-text" id="advanceExpenses">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Остаток (Аванс)</h5>
+                <h3 class="card-text" id="advanceBalance">0 ₽</h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedWalletId = {{ selected_wallet_id or 'null' }};
+    if (selectedWalletId) {
+        loadStatistics(selectedWalletId);
+    } else {
+        toastr.warning('Пожалуйста, выберите кошелек для просмотра статистики');
+    }
+});
+
+function loadStatistics(walletId) {
+    fetch(`/api/statistics/${walletId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('statistics').style.display = 'flex';
+            updateStatistics(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('statistics').style.display = 'none';
+        });
+}
+
+function updateStatistics(data) {
+    // Обновление всех блоков статистики
+    document.getElementById('totalIncome').textContent = formatCurrency(data.total_income);
+    document.getElementById('totalExpenses').textContent = formatCurrency(data.total_expenses);
+    document.getElementById('totalBalance').textContent = formatCurrency(data.total_balance);
+    
+    document.getElementById('salaryIncome').textContent = formatCurrency(data.salary_income);
+    document.getElementById('salaryExpenses').textContent = formatCurrency(data.salary_expenses);
+    document.getElementById('salaryBalance').textContent = formatCurrency(data.salary_balance);
+    
+    document.getElementById('advanceIncome').textContent = formatCurrency(data.advance_income);
+    document.getElementById('advanceExpenses').textContent = formatCurrency(data.advance_expenses);
+    document.getElementById('advanceBalance').textContent = formatCurrency(data.advance_balance);
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB'
+    }).format(amount);
+}
+</script>
+{% endblock %} 

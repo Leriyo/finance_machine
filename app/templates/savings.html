@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Создать копилку</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('savings.add') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="wallet_id" class="form-label">Кошелек</label>
+                        <select class="form-select" id="wallet_id" name="wallet_id" required>
+                            <option value="">Выберите кошелек</option>
+                            {% for wallet in wallets %}
+                            <option value="{{ wallet.id }}" 
+                                    {% if wallet.id == selected_wallet_id %}selected{% endif %}>
+                                {{ wallet.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Название копилки</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="target_amount" class="form-label">Целевая сумма</label>
+                        <input type="number" step="0.01" class="form-control" id="target_amount" 
+                               name="target_amount" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="payment_amount" class="form-label">Сумма ежемесячного платежа</label>
+                        <input type="number" step="0.01" class="form-control" id="payment_amount" 
+                               name="payment_amount" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="payment_type" class="form-label">Источник платежа</label>
+                        <select class="form-select" id="payment_type" name="payment_type" required>
+                            <option value="salary">Зарплата</option>
+                            <option value="advance">Аванс</option>
+                            <option value="additional">Доп. доход</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Создать копилку</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Копилки</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for saving in savings %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ saving.name }}</h5>
+                                <div class="mb-2">
+                                    <small class="text-muted">Целевая сумма:</small>
+                                    <div>{{ "%.2f"|format(saving.target_amount) }} ₽</div>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">Накоплено:</small>
+                                    <div>{{ "%.2f"|format(saving.current_amount) }} ₽</div>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">Ежемесячный платеж:</small>
+                                    <div>{{ "%.2f"|format(saving.payment_amount) }} ₽</div>
+                                </div>
+                                
+                                <!-- Прогресс-бар -->
+                                <div class="progress mb-3">
+                                    {% set percent = (saving.current_amount / saving.target_amount * 100)|round %}
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ percent }}%"
+                                         aria-valuenow="{{ percent }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ percent }}%
+                                    </div>
+                                </div>
+
+                                <!-- Кнопки действий -->
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <form action="{{ url_for('savings.contribute', id=saving.id) }}" method="POST" class="me-1">
+                                        <button type="submit" class="btn btn-success"
+                                                {{ 'disabled' if saving.is_paid_this_month }}>
+                                            {{ 'Оплачено' if saving.is_paid_this_month else 'Внести' }}
+                                        </button>
+                                    </form>
+                                    
+                                    <a href="{{ url_for('savings.history', id=saving.id) }}" 
+                                       class="btn btn-info me-1">История</a>
+                                    
+                                    <form action="{{ url_for('savings.withdraw', id=saving.id) }}" method="POST" class="me-1">
+                                        <button type="submit" class="btn btn-warning"
+                                                onclick="return confirm('Снять все накопления?')"
+                                                {{ 'disabled' if saving.current_amount == 0 }}>
+                                            Снять
+                                        </button>
+                                    </form>
+                                    
+                                    <form action="{{ url_for('savings.delete', id=saving.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Удалить копилку?')">
+                                            Удалить
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col">
+                        <p class="text-center">Нет активных копилок</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    // Обновление прогресс-бара в реальном времени
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+        const percent = parseFloat(bar.style.width);
+        if (percent >= 100) {
+            bar.classList.add('bg-success');
+        } else if (percent >= 50) {
+            bar.classList.add('bg-info');
+        } else {
+            bar.classList.add('bg-primary');
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %} 

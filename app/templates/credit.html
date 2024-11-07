@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Добавить кредит</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('credit.add') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="wallet_id" class="form-label">Кошелек</label>
+                        <select class="form-select" id="wallet_id" name="wallet_id" required>
+                            <option value="">Выберите кошелек</option>
+                            {% for wallet in wallets %}
+                            <option value="{{ wallet.id }}" 
+                                    {% if wallet.id == selected_wallet_id %}selected{% endif %}>
+                                {{ wallet.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Название кредита</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="total_amount" class="form-label">Общая сумма кредита</label>
+                        <input type="number" step="0.01" class="form-control" id="total_amount" 
+                               name="total_amount" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="monthly_payment" class="form-label">Ежемесячный платеж</label>
+                        <input type="number" step="0.01" class="form-control" id="monthly_payment" 
+                               name="monthly_payment" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="payment_type" class="form-label">Тип выплаты</label>
+                        <select class="form-select" id="payment_type" name="payment_type" required>
+                            <option value="salary">Зарплата</option>
+                            <option value="advance">Аванс</option>
+                            <option value="additional">Доп. доход</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Добавить кредит</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Активные кредиты</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for credit in credits %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div>
+                                    <h5 class="card-title">{{ credit.name }}</h5>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Общая сумма:</small>
+                                        <div>{{ "%.2f"|format(credit.total_amount) }} ₽</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Остаток:</small>
+                                        <div>{{ "%.2f"|format(credit.remaining_amount) }} ₽</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Ежемесячный платеж:</small>
+                                        <div>{{ "%.2f"|format(credit.monthly_payment) }} ₽</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Кнопки действий -->
+                                <div class="mt-auto d-flex gap-2">
+                                    <form action="{{ url_for('credit.make_payment', id=credit.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-success"
+                                                {{ 'disabled' if credit.is_paid_this_month }}>
+                                            {{ 'Оплачено' if credit.is_paid_this_month else 'Внести' }}
+                                        </button>
+                                    </form>
+                                    
+                                    <a href="{{ url_for('credit.history', id=credit.id) }}" 
+                                       class="btn btn-info">История</a>
+                                    
+                                    <form action="{{ url_for('credit.close_credit', id=credit.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Закрыть кредит?')">
+                                            Закрыть
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col">
+                        <p class="text-center">Нет активных кредитов</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
