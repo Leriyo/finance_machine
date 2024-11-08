@@ -2,6 +2,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
 }
 
 /* Эффект при наведении */
@@ -44,4 +47,128 @@
     background-color: #0d6efd;
     color: white !important;
     border-radius: 4px;
+}
+
+/* Стили для тегов дохода */
+.income-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.income-tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    user-select: none;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+.income-tag:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+}
+
+.income-tag.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+
+/* Скрываем оригинальный select */
+#income_type {
+    display: none;
+}
+
+/* Стили для тегов */
+.payment-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.payment-tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    user-select: none;
+}
+
+.payment-tag:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+}
+
+.payment-tag.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+
+/* Скрываем оригинальный select */
+#payment_type {
+    display: none;
+}
+
+/* Основные стили для текста */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2d3436;
+    line-height: 1.5;
+}
+
+/* Стили для заголовков */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Стили для цифр */
+.number {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+/* Стили для карточек */
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Стили для форм */
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.form-control {
+    font-size: 1rem;
+    border-radius: 8px;
 }

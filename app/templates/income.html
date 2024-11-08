@@ -23,8 +23,14 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="type" class="form-label">Тип дохода</label>
-                        <select class="form-select" id="type" name="type" required>
+                        <label class="form-label">Тип дохода</label>
+                        <div class="income-tags">
+                            <div class="income-tag" data-value="salary">Зарплата</div>
+                            <div class="income-tag" data-value="advance">Аванс</div>
+                            <div class="income-tag" data-value="additional">Доп. доход</div>
+                        </div>
+                        <!-- Скрытый select для отправки формы -->
+                        <select name="type" id="income_type" required>
                             <option value="salary">Зарплата</option>
                             <option value="advance">Аванс</option>
                             <option value="additional">Доп. доход</option>
@@ -66,6 +72,8 @@
                                     Зарплата
                                 {% elif income.type == 'advance' %}
                                     Аванс
+                                {% elif income.type == 'additional' %}
+                                    Доп. доход
                                 {% else %}
                                     Доп. доход
                                 {% endif %}
@@ -102,6 +110,33 @@ document.getElementById('wallet_id').addEventListener('change', function() {
     if (walletId) {
         window.location.href = "{{ url_for('income.index') }}?wallet_id=" + walletId;
     }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tags = document.querySelectorAll('.income-tag');
+    const select = document.getElementById('income_type');
+
+    // Устанавливаем начальное состояние
+    const initialValue = select.value;
+    tags.forEach(tag => {
+        if (tag.dataset.value === initialValue) {
+            tag.classList.add('active');
+        }
+    });
+
+    // Обработка клика по тегам
+    tags.forEach(tag => {
+        tag.addEventListener('click', function() {
+            // Убираем активный класс у всех тегов
+            tags.forEach(t => t.classList.remove('active'));
+            
+            // Добавляем активный класс выбранному тегу
+            this.classList.add('active');
+            
+            // Обновляем значение скрытого select
+            select.value = this.dataset.value;
+        });
+    });
 });
 </script>
 {% endblock %} 
